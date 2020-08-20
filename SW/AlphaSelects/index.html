@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html>
+<meta charset="utf-8"/>
+<head>
+</head>
+<body>
+    <script src="lib/gmaps.js"></script>
+    <script src="https://maps.google.com/maps/api/js"></script>
+    <script src="lib/jquery.min.js"></script>
+    <script src="lib/d3/d3.v3.min.js"></script>
+    <script src="lib/jquery-ui.min.js"></script>       
+    <script src="lib/gantt-chart-d3-customized.js"></script>
+    <script src="lib/themes/js-image-slider.js" type="text/javascript"></script>
+    <link href = "project.css" rel = "stylesheet" type="text/css"/>
+    <link href="lib/themes/js-image-slider.css" rel="stylesheet" type="text/css" />
+    <link href="generic.css" rel="stylesheet" type="text/css" />
+    <!-- footer font retriveed from : https://fonts.googleapis.com/css?family=Montserrat:700  --!> 
+    <link href='./footerFont.css' rel='stylesheet' type='text/css'>
+    <div id="nav">
+    </div>
+<div id="wrapper">
+  <div id="map"></div>
+    <div id="over_map">
+	<select id="citymenu">
+	   <option id = "NV", name ="Las Vegas" value="0" selected = "selected">Las Vegas</option>
+  	   <option id = "AZ" name = "Phoenix" value="1">Phoenix</option>
+  	   <option id= "PA"  name="Pittsburgh" value="2">Pittsburgh</option>
+  	   <option id = "NC" name="Charlotte" value="3">Charlotte</option>
+	</select>
+	<form id="foodtype">
+  	    <label id="American"><input type="radio" name="foodtype" value="American" id= "American-I" checked = "checked" />American</label>
+  	    <label id="French"><input type="radio" name="foodtype" value="French" id="French-I" />French</label>
+  	    <label id =Italian><input type="radio" name="foodtype" value="Italian" id="Italian-I" />Italian</label>
+  	    <label id="Japanese"><input type="radio" name="foodtype" value="Japanese" id="Japanese-I" />Japanese</label>
+    	    <label id=Seafood><input type="radio" name="foodtype" value="Seafood" id="Seafood-I" />Seafood</label>
+  	    <label id="Varieties"><input type="radio" name="foodtype" value="Varieties" id="Varieties-I" />Varieties</label>
+	</form>
+    </div>
+  </div>
+</div>
+
+<div id="details" ></div>
+<div id="footer">
+	Alpha Selects<sup>&reg;</sup>
+</div>
+<script>
+var tempcontent 
+function update(value,city)
+{
+    document.getElementById("details").innerHTML = "click on the restaurant to see more details";
+    var city_coor = {"Las Vegas": {"lng":-115.172813,"lat":36.114647}, "Phoenix": {"lng":-112.087966,"lat":33.572162},
+		     "Pittsburgh":{"lng":-79.995888, "lat":40.440624},"Charlotte":{"lng": -80.843124,"lat":35.227085}}
+
+    var city_menu ={"Las Vegas": {"American":["American", "Steakhouses", "Burgers","American (Traditional)","American (New)" ],
+		    		  "French":["French"], 
+				  "Italian":["Italian", "Pizza", "Pasta"],
+				  "Japanese":["Japanese", "Sushi Bars"],
+				  "Seafood":["Seafood"]},
+		    "Phoenix": {"American":["American", "Steakhouses", "Burgers","American (Traditional)","American (New)" ],
+		    		"Italian":["Italian", "Pizza", "Pasta"]},
+		    "Pittsburgh": {"American":["American", "Steakhouses", "Burgers","American (Traditional)","American (New)" ],
+		    		   "Italian":["Italian", "Pizza", "Pasta"]} ,
+		    "Charlotte":{"American":["American", "Steakhouses", "Burgers","American (Traditional)","American (New)" ],
+		  		 "Italian":["Italian", "Pizza", "Pasta"]} } 
+    var city_lng = city_coor[city].lng  
+    var city_lat = city_coor[city].lat  
+    var source = { "Las Vegas":"./guidata/b_info_NV.csv",
+		   "Phoenix":"./guidata/b_info_AZ.csv",
+		   "Pittsburgh":"./guidata/b_info_PA.csv",
+		   "Charlotte":"./guidata/b_info_NC.csv" }
+
+    var iconsource = {"American":"Default","French":"Default",
+		      "Italian":"Default", "Japanese":"Default",
+		      "Seafood":"Default","Varieties":"Default"} 
+    var city_div = makecity(city)
+    var food_div = makefoodtype(value)
+    document.getElementById("nav").innerHTML = city_div ;
+    document.getElementById("details").innerHTML = food_div;
+    imageSlider.reload();
+
+    var map = new GMaps
+    ({
+    	div: "#map",
+       	lng: city_lng ,
+       	lat: city_lat,
+       	width: 600,
+       	height: 590,
+       	zoom: 10,
+        zoomControlOpt: {
+                style : 'SMALL',
+                position: 'bottom_left'
+            },
+	mapTypeControl: false,
+     });
+
+     if(value == "Varieties")
+     {
+		 d3.csv(source[city], function(data)
+        	{
+        		var i = 0
+			var marker_dic = []
+			var weekdays_dic = []
+			var review = []
+			var long_review = []
+               		while(i<data.length)
+                	{
+				var main = Object.keys(city_menu[city])
+                   		var str0 = data[i].categories
+                   		var formatteditems = str0.split('|');
+				var finalitems = formatteditems.filter(Boolean);
+				var flag1 =true 
+				var flag2 =true 
+				if(finalitems.indexOf("Restaurants")==-1)
+						flag1 = false 
+				var j = 0
+			 	while(j < main.length)
+			 	{
+					var tIndex = main[j]
+					var k =0
+					var cIndex = city_menu[city][tIndex]
+					while(k < cIndex.length)
+					{	
+						if(finalitems.indexOf(cIndex[k])!=-1)
+							flag2 = false
+						k = k + 1
+					}
+					j = j+1
+				}
+		
+                   		if((flag1 && flag2) == true)
+                   		{
+		                        var r = finalitems.indexOf("Restaurants");
+       			                if(r != -1)
+                        		{
+                                		finalitems.splice(r, 1);
+                        		}
+					var name = makename(data[i].name)
+					var address = makeaddress(data[i].full_address)	
+					var b_rating = makestars("business",data[i].stars)
+					var alpha_rating = makestars("alpha",data[i].alpha_rating)
+					var weekdays= []
+					weekdays["Mon"] = [data[i].hours_Monday_open, data[i].hours_Monday_close]
+					weekdays["Tue"] = [data[i].hours_Tuesday_open, data[i].hours_Tuesday_close]
+					weekdays["Wed"] = [data[i].hours_Wednesday_open, data[i].hours_Wednesday_close]
+					weekdays["Thu"] = [data[i].hours_Thursday_open, data[i].hours_Thursday_close]
+					weekdays["Fri"] = [data[i].hours_Friday_open, data[i].hours_Friday_close]
+					weekdays["Sat"] = [data[i].hours_Saturday_open, data[i].hours_Saturday_close]
+					weekdays["Sun"] = [data[i].hours_Sunday_open, data[i].hours_Sunday_close]
+					var timeline =  '<tr align = left ><th colspan="2" style="width:100%" align=left>'
+	                                +'<div id="gantt"></div></th></tr>'
+					var more = makemore(data[i].price,data[i].reservation,data[i].parking,data[i].wifi)
+
+                			var details = "<div><table id=tabeldetails><tbody>"+name+address+
+				  			b_rating+timeline+"</tbody></table></div>"+more
+				 
+    					var index = map.markers.length;
+					marker_dic[String(index)] = details 
+					weekdays_dic[String(index)]=weekdays
+					var image_name = city+ "/"+ data[i].id+".jpg"
+   					var image  = '<tr><td colspan="2"><div id=pic><img src="images/'+image_name+'"></div></td></tr>' 
+					var Review = data[i].text
+					if(Review.length>600)
+					{
+   						Review = '<div>'+ Review.substr(0,600) + "...";
+   						Review += '<a href="javascript:newWindow()" style="color: orange">Read More</a></div>'; 
+					}
+					Review = '<tr align = middle>'+
+				 		 '<td align=justify colspan="2" style="font-size:12p;padding-right:10px">'+
+				 		'<b>Review by Alpha: </b>'+Review +'</td></tr>'
+					review[String(index)]="<div><table><tbody>"+ name + alpha_rating +image +  Review + 
+					      			"</tbody></table></div>"
+					long_review[String(index)] = data[i].text
+                			map.addMarker
+                			({
+
+                    				lng:data[i].longitude,
+                           			lat: data[i].latitude,
+						// icon source: http://plainicon.com/download-icon/63517/restaurant-location
+						icon :'./images/'+iconsource[value]+'.png',
+						infoWindow:{
+       						 		content: 
+								'<p> Name: ' + data[i].name + '<br >' + 
+                                   			        'Restaurant Type: ' + finalitems.join(", ") +'</p>',
+    					   		   },
+						id:index,
+                     				click: function(e) 
+                     				{
+							document.getElementById("details").innerHTML = marker_dic[this.id];
+							makeschedule(weekdays_dic[this.id]);
+							if($("#details").is(":visible"))
+							{
+								$("#details").show("slide", { direction: "left" }, 1000);
+							}
+							else
+							{
+								$("#details").show("slide", { direction: "left" }, 1000);
+							}
+							tempcontent = long_review[this.id]; 
+							document.getElementById("nav").innerHTML = review[this.id];
+ 
+
+                      				},
+						mouseover: function(e)
+						{
+			     				this.infoWindow.open(this.map, this);	
+            					},
+						mouseout: function(e)
+						{
+			   				this.infoWindow.close();	
+            					}
+                			  });
+		   		}
+                   		i = i +1
+                	}                         
+        	})
+
+      }
+      else
+      {
+	d3.csv(source[city], function(data)
+	{
+        	var i = 0
+		var marker_dic = []
+		var weekdays_dic = []
+		var review = []
+		var long_review = []
+        	while(i<data.length)
+        	{
+		   var str0 = data[i].categories
+                   var formatteditems = str0.split('|');
+	           var finalitems = formatteditems.filter(Boolean);
+		   var k = 0
+		   var flag2 = true
+		   var tIndex = city_menu[city][value]
+		   while(k < tIndex.length)
+		   {	
+					
+			if(finalitems.indexOf(tIndex[k])!=-1)
+			{
+				flag2 = false
+			}
+			k = k + 1
+	   	   }
+		   	
+		   if((finalitems.indexOf("Restaurants")!=-1)&& (flag2==false))
+		   {
+			var r = finalitems.indexOf("Restaurants");
+			if(r != -1)
+		        {
+				finalitems.splice(r, 1);
+			}
+			var name = makename(data[i].name)
+			var address = makeaddress(data[i].full_address)	
+			var b_rating = makestars("business",data[i].stars)
+			var alpha_rating = makestars("alpha",data[i].alpha_rating)
+			var weekdays= []
+			weekdays["Mon"] = [data[i].hours_Monday_open, data[i].hours_Monday_close]
+			weekdays["Tue"] = [data[i].hours_Tuesday_open, data[i].hours_Tuesday_close]
+			weekdays["Wed"] = [data[i].hours_Wednesday_open, data[i].hours_Wednesday_close]
+			weekdays["Thu"] = [data[i].hours_Thursday_open, data[i].hours_Thursday_close]
+			weekdays["Fri"] = [data[i].hours_Friday_open, data[i].hours_Friday_close]
+			weekdays["Sat"] = [data[i].hours_Saturday_open, data[i].hours_Saturday_close]
+			weekdays["Sun"] = [data[i].hours_Sunday_open, data[i].hours_Sunday_close]
+			var timeline =  '<tr align = left ><th colspan="2" style="width:100%" align=left>'
+	                                +'<div id="gantt"></div></th></tr>'
+			var more = makemore(data[i].price,data[i].reservation,data[i].parking,data[i].wifi)
+
+                	var details = "<div><table id=tabeldetails><tbody>"+name+address+
+				       b_rating+timeline+"</tbody></table></div>"+more
+				 
+    			var index = map.markers.length;
+			marker_dic[String(index)] = details 
+			weekdays_dic[String(index)]=weekdays
+			var image_name = city+"/"+data[i].id+".jpg"
+   			var image  = '<tr><td colspan="2"><div id=pic><img src="images/'+image_name+'"></div></td></tr>' 
+			var Review = data[i].text
+			if(Review.length>600)
+			{
+   				Review = '<div>'+ Review.substr(0,600) + "...";
+   				Review += '<a href="javascript:newWindow()" style="color: orange">Read More</a></div>'; 
+			}
+			Review = '<tr align = middle>'+
+				 '<td align=justify colspan="2" style="font-size:12p;padding-right:10px">'+
+				 '<b>Review by Alpha: </b>'+Review +'</td></tr>'
+			review[String(index)]="<div><table><tbody>"+ name + alpha_rating +image +  Review + 
+					      "</tbody></table></div>"
+			long_review[String(index)] = data[i].text
+                	map.addMarker
+                	({
+
+                    		lng:data[i].longitude,
+                           	lat: data[i].latitude,
+				icon :'./images/'+iconsource[value]+'.png',
+				infoWindow:{
+       						 content: 
+						'<p> Name: ' + data[i].name + '<br >' + 
+                                   		"Restaurant Type: " + finalitems.join(", ") +'</p>',
+    					   },
+				//title: String(index),
+				id:index,
+                     		click: function(e) 
+                     		{
+					document.getElementById("details").innerHTML = marker_dic[this.id];
+					makeschedule(weekdays_dic[this.id]);
+					if($("#details").is(":visible"))
+					{
+						$("#details").show("slide", { direction: "left" }, 1000);
+					}
+					else
+					{
+						$("#details").show("slide", { direction: "left" }, 1000);
+					}
+					tempcontent = long_review[this.id]; 
+					document.getElementById("nav").innerHTML = review[this.id];
+ 
+
+                      		},
+				mouseover: function(e)
+				{
+			     			this.infoWindow.open(this.map, this);	
+            			},
+				mouseout: function(e)
+				{
+			   		this.infoWindow.close();	
+            			}
+                	});
+		   }
+
+               	   i = i +1
+		}                         
+	})
+	
+      }
+}
+function makefoodtype(foodinput)
+{	
+	if(foodinput == "Seafood" )
+		var name = foodinput 
+	else if(foodinput =="Varieties")
+	
+		var name = foodinput 
+	else
+		var name = foodinput +" Food"
+	
+        var formattedname = '<div align="middle" style="font-size:15px;font-weight:bold;padding-bottom:10px">'+name+'</div>'
+	var captions = { "American":["Cheese Burger","Kobe Sliders",
+				     "Duck, Fried Egg, Waffle & Maple Syrup", "Bone-in Ribeye",
+				     "Chicken Fingers", "Pork Belly",
+				     "Crab Cake with Lobster Sauce","Crispy Oysters Rockefeller",
+				     "Steak & Eggs", "Lobster Tail"],  
+				  
+			 "French":["Butter Croissant","Quiche, Tomato Soup & bread",
+				   "French Onion Soup","Fried Frog Leg",
+				   "Cheese Brioche & Bacon Epi", "Foie Gras",
+				   "Rack of Lamb","Duck Confit",
+				   "French Roast Duck",	"Dark Chocolate Mousse"],
+			 "Italian":[ "Pepperoni, Ham & Mushroom Pizza","Ricotta Egg Ravioli with Brown Butter",
+				     "Veggie Pizza","Clams & Cherry Tomato Spaghetti",
+				     "Ossobuco", "Potato Gnocchi with Lobster",
+				     "Penne Pasta","Shrimp Fettuccine Alfredo",
+				     "Carpaccio", "Tiramisu & Cannoli"
+				    ],
+			 "Japanese":["Edamame", "Miso Soup",
+				     "Seaweed Salad","Kanpachi Sashimi",
+				     "Uni Nigiri","Salmon & Tuna Nigiri" ,
+				     "Vegetable & Shrimp Tempura","Poki",
+				     "Ramen","Sushi Plate"],
+			 "Seafood":["Fresh Oysters","Lobster Bisque",
+				    "Jumbo Shrimp Cocktail","Fried Calamari",
+				    "Seared Sea Scallops","Chilean Sea Bass",
+				    "Shrimp, Lobster Tails & Scallops","Grilled Branzino",
+				    "Crawfish & Shrimp","Grilled Salmon"],
+			 "Varieties":[ "Fried Zucchini With Tzatziki (Greek)", "Garlic Naan (Indian)",
+				       "Monterey Bacon Chicken Guacamole (Mexican)","Tandoori Chicken (Indian)",
+				       "Balsamic Portobello (Modern)","Pad Thai (Thai)", 
+					"Pan con Tomate (Spanish)","Mango with Sticky Rice (Thai)",
+					"Hummus (Egyptian)"," Turkish Baklava"
+					]}
+  	
+	var caption = captions[foodinput]
+     	var photos = '<div id="sliderFrame"><div id="slider">'
+	var i = 0
+	while(i<10)
+	{
+		var t = String(i + 1)
+		photos =photos + '<img  src="images/'+foodinput+t+'.jpg" alt="'+caption[i]+'" />'
+		i = i + 1
+	}
+
+	photos = photos + '</div></div>'
+       	var food_div = "<table id=tabeldetails>"+formattedname+photos+"</table>"
+        return food_div 
+
+}
+function makecity(city_input)
+{
+        // dsccription is from Wikipedia 
+        var city_desc = { "Las Vegas" :"Las Vegas (/lɑːs ˈveɪɡəs/, also locally /lɑːs ˈvɛɡᵻs/; Spanish: [laz ˈβeɣas]) officially the"+
+		      " City of Las Vegas and often known as simply Vegas, is a city in the United States, the most populous city"+
+		      " in the state of Nevada, the county seat of Clark County, and the city proper of the Las Vegas Valley."+
+		      " Las Vegas is an internationally renowned major resort city known primarily for gambling, shopping, fine"+
+		      " dining and nightlife and is the leading financial, commercial, and cultural center for Southern Nevada."+
+		      "<p> The city bills itself as The Entertainment Capital of the World, and is famous for its mega"+
+		      " casino–hotels and associated entertainment. A growing retirement and family city, Las Vegas is"+
+		      " the 29th-most populous city in the United States, with a population of 603,488 at the 2013"+
+		      " United States Census Estimates.</p>"
+		      ,
+		      "Phoenix" : "Phoenix (/ˈfiːnɪks/) is the capital, and largest city, of the U.S. state of Arizona."+
+		      " With 1,445,632 people (as of the 2010 U.S. Census), Phoenix is the most populous state capital"+
+		      " in the United States, as well as the sixth most populous city nationwide."+
+		      "<p>One of the biggest attractions of the Phoenix area is golf, with over 200 golf courses."+
+		      " In addition to the sites of interest in the city, there are many attractions near Phoenix,"+
+		      " such as: Agua Fria National Monument, Arcosanti, Casa Grande Ruins National Monument, Lost Dutchman"+
+		      " State Park, Montezuma's Castle, Montezuma's Well, and Organ Pipe Cactus National Monument."+
+		      " Phoenix also serves as a central point to many of the sights around the state of Arizona,"+
+		      " such as the Grand Canyon, Lake Havasu (where the London Bridge is located), Meteor Crater,"+
+		      " the Painted Desert, the Petrified Forest, Tombstone, Kartchner Caverns, Sedona and Lowell"+
+		      " Observatory in Flagstaff.</p>" 
+		      ,
+		      "Pittsburgh": "Pittsburgh (/ˈpɪtsbərɡ/ pits-burg) is the second largest city in the Commonwealth"+
+		      " of Pennsylvania with a population of 305,842 and the county seat of Allegheny County. The Combined "+
+		      "Statistical Area (CSA) population of 2,659,937 is the largest in both the Ohio Valley and Appalachia "+
+		      'and the 20th-largest in the U.S. Pittsburgh is known as both "the Steel City" for its more than 300'+
+		      ' steel-related businesses, as well as "the City of Bridges" for its 446 bridges. The city features'+
+		      " 30 skyscrapers, 2 inclines, a pre-revolutionary fortification and the source of the Ohio River at the"+
+		      " confluence of the Monongahela and Allegheny rivers. This vital link of the Atlantic coast and Midwest"+
+		      " through the mineral-rich Alleghenies made the area coveted by the French and British Empires, Virginia,"+
+		      " Whiskey Rebels, Civil War raiders and media networks."
+		     ,
+		     "Charlotte": "Charlotte /ˈʃɑːrlət/ is the largest city in the state of North Carolina. It is the county seat"+
+		     " of Mecklenburg County and the second largest city in the southeastern United States, just behind Jacksonville,"+
+		     " Florida. Charlotte is the third fastest growing major city in the United States. In 2014, the estimated"+
+		     " population of Charlotte according to the U.S. Census Bureau was 809,958 making it the 17th largest city"+
+                     " in the United States based on population."+
+		     "<p>Charlotte has a humid subtropical climate. Charlotte is located several miles east of the Catawba River"+
+		     " and southeast of Lake Norman, the largest man-made lake in North Carolina. Lake Wylie and Mountain Island"+
+		     " Lake are two smaller man-made lakes located near the city.</p>"
+		}
+	var long_link = {	"Las Vegas":"http://www.forbes.com/"+
+		        "sites/larryolmsted/2015/08/04/10-coolest-things-you-didnt-know-you-could-do-in-las-vegas-2015-16/#5e7c75734602",
+			"Phoenix":"http://www.forbes.com/"+
+			"sites/joshsteimle/2015/03/16/why-phoenix-arizonas-business-leaders-are-excited-about-2015/#516aca9866dc",
+			"Pittsburgh":"http://vacationidea.com/destinations/best-things-to-do-in-pittsburgh-pa.html",
+			"Charlotte":"http://cmbcc.org/charlotte-ranked-good-for-business/#prettyPhoto"
+		}
+        var pic_link = { "Las Vegas" : "https://www.forbes.com/", "Phoenix": "https://www.forbes.com/" ,
+			 "Pittsburgh":"http://vacationidea.com/", "Charlotte": "http://cmbcc.org/"}
+	var city_pic = { "Las Vegas" : "Lasvegas.jpg", "Phoenix": "Phoenix.jpg" ,
+			  "Pittsburgh":"Pittsburgh.jpg", "Charlotte": "Charlotte.jpg"}
+ 
+        var city_link = { "Las Vegas" : "https://en.wikipedia.org/wiki/Las_Vegas", 
+		          "Phoenix": "https://en.wikipedia.org/wiki/Phoenix,_Arizona",
+		          "Pittsburgh":"https://en.wikipedia.org/wiki/Pittsburgh",
+		          "Charlotte": "https://en.wikipedia.org/wiki/Charlotte,_North_Carolina"
+		        }
+
+	var city_name ='<tr align = middle height = 30>'+
+	    	       '<th align=middle style = "padding:10px 0px 10px 0px;font-size:15px;font-weight:bold" colspan="2">'+
+		       city_input+'</th></tr>' 
+        var city_info = '<tr align = middle>'+
+                     '<td align=justify colspan="2" style="font-size:12p;padding-right:10px"><div class="tooltip">'+
+                    city_desc[city_input] +'<span class="tooltiptext">'+city_link[city_input]+'</span></div></td></tr>'
+        var image  = '<tr><td colspan="2"><div id=pic> <a href="'+ long_link[city_input]+'" class="hovertext" title="source: '+pic_link[city_input]+'">'+
+		 '<img src="./images/'+ city_pic[city_input]+'"></a></a>'+
+		 '</div></td></tr>' 
+        city_div ='<div><table><tbody>'+city_name + image + city_info  + '</tbody></tabel></div>'
+        return city_div 
+}
+function newWindow()
+{
+// adopted from http://jsfiddle.net/moritana/aLzTK/
+
+    var article = open('Review','Review','width=600,height=600');
+    var content = '<html><title>Review</title><link href = "project.css" rel = "stylesheet">'+
+	          '<div id="review" align=justify style="padding:20px 20px 20px 20px;font-size=12px">'+
+	          '<b style="color:rgb(196, 18, 0)">Review by Alpha</b><br >'+tempcontent+'</div></html>' 
+    article.document.write(content);
+}
+function makereservation(answer)
+{
+     if(answer=="Yes")
+	   var res = '<td id="moredetails" style="font-size:60px; color:#FF00FF" rowspan="2">&#10003;</td>'	
+     else
+	   var res = '<td id="moredetails" rowspan="2" style="font-size:45px; color:#FF00FF">&#x2717;</td>'	
+   
+     return res
+}
+function makeparking(answer)
+{
+     if(answer=="Yes")
+	   var res = '<td id="moredetails" style="font-size:60px; color: #0050EF" rowspan="2">&#10003;</td>'	
+     else
+	   var res = '<td id="moredetails" rowspan="2" style = "font-size:45px; color: #0050EF">&#x2717;</td>'	
+     return res
+}
+function makewifi(answer)
+{
+     if(answer=="Yes")
+	   var res = '<td rowspan="2" style="padding:0px 0px 0px 10px; font-size:60px; color: #E51400">&#10003;</td>'	
+     else
+	   var res = '<td rowspan="2" style="padding:0px 0px 0px 10px; font-size:45px; color: #E51400">&#x2717;</td>'	
+     return res
+}
+function makename(nameinput)
+{
+	
+	if(nameinput!="")
+	{
+	
+		var formattedname = '<tr align = middle width=90 height = 30><th align=middle'+
+				' style = "padding:0px 0px 0px 0px;font-size:15px;font-weight:bold" colspan="2">'+
+				nameinput+'</th></tr>'
+	}
+	else
+	{
+		var formattedname = '<tr align = middle width=90><th align=middle style = "padding:0px 0px 0px 0px" colspan="2">'
+				+nameinput+'</th></tr>'
+	}
+	return formattedname
+}
+function makeaddress(f_address)
+{
+	if(f_address!="")
+	{
+		var formattedaddress = '<tr align = middle width=90><td align=middle style = "padding:10px 0px 0px 0px" colspan="2">'+f_address+
+		'</td></tr>'
+	}	
+	else 
+	{	
+		var formattedaddress ='<tr></tr>'
+	}
+	return formattedaddress
+}
+function makestars(reviewer, rate)
+{
+	if(reviewer == "alpha")
+	{
+		if(rate!="")
+		{
+			var stars ='<tr align = middle><th align=middle style = "padding-top:10px">Alpha'+"'s "+'Stars</th>'+
+                                   '<td style = "padding-top:10px;padding-left:20px" align=left>'+
+			  	   '<div class="rating" data-rating="'+rate+'" id="rating">'+
+				   '<i class="star-1">★</i> <i class="star-2">★</i> '+
+				   '<i class="star-3">★</i> <i class="star-4">★</i> '+
+				   '<i class="star-5">★</i> </div></td></tr>'  
+		}
+		else
+		{
+			stars= '<tr align = middle width=120><th align=left style = "padding-top:10px"> Stars</th>Alpha'+"'s"+ 
+			 	+ 'Stars</th>'+
+				  '<td style = "padding-top:10px">N.A.</td></tr>'	
+		}
+	}
+	else
+	{
+		if(rate!="")
+		{
+	   	 	var stars  ='<tr align = middle width=90><th align=left style = "padding-top:10px">Average Stars</th>'+
+                                    '<td style = "padding-top:10px" align=left>'+
+                                    '<div class="rating" data-rating="'+rate +'" id="rating">'+
+                                    '<i class="star-1">★</i> <i class="star-2">★</i> '+
+                                    '<i class="star-3">★</i> <i class="star-4">★</i> '+
+                                    '<i class="star-5">★</i> </div></td></tr>'
+		}
+		else
+		{
+			var stars= '<tr align = middle width=90><th align=left style = "padding-top:10px">>Average Stars</th>'+
+			           '<td style = "padding-top:10px">N.A.</td></tr>'	
+		} 
+	}
+	return stars
+	
+}
+function makeprice(pricerange)
+{
+	if(pricerange=="")
+	{
+		price = '<tr><td id=moredetails>N.A.</td>'
+		
+	}
+	else
+	{
+		price='<tr><td id=moredetails>'+
+			'<div class="range" data-range="'+pricerange +'" id="range">'+
+			'<i class="dollar-1">$</i> <i class="dollar-2">$</i> '+
+			'<i class="dollar-3">$</i> <i class="dollar-4">$</i> '+
+			'</div></td>'
+	}
+	return price
+}
+function makerange(pricerange)
+{
+	if(pricerange=="")
+	{
+		range = '<tr><td id=moredetails></td>'
+		
+	}
+	else 
+	{
+		if(pricerange == "1")
+			pr="Under $10"
+		else if(pricerange == "2")	
+			pr="$11 - $30"
+		else if(pricerange == "3")
+			pr="$31 - $60"
+		else
+			 pr="Above $61"
+		range = '<tr><td id=moredetails><span>&nbsp'+pr+'</span></td>'
+		
+	}
+	return range
+}
+function makemore(price, reservation,parking, wifi)
+{
+	price_result = makeprice(price)
+	reservation_result = makereservation(reservation)
+				more = '<div><table id=more><tbody><tr align = middle >'+
+				'<th  width=120 id=moredetails>Price</th>'+
+				'<th  width=80 id=moredetails>Reservation</th>'+
+				'<th  width=70 id=moredetails>Parking</th>'+
+				'<th  style="padding: 0px 0px 0px 10px">Wifi</th></tr>'+
+				makeprice(price) +makereservation(reservation)+
+				makeparking(parking)+makewifi(wifi)+'</tr>'+
+				makerange(price)
+	return more
+}
+// for schedule the ganttchart code from github is cusomized  and used
+//http://dk8996.github.io/Gantt-Chart/
+function makeschedule(days)
+{
+	var minDate = new Date("Sun Dec 09 06:00:00 EST 2012")
+	var maxDate = new Date("Mon Dec 09 23:00:00 EST 2012")
+	 
+	var hoursdetails = []
+	var day = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+	var i = 0
+	while(i<day.length)
+	{
+		 if(days[day[i]][0] == days[day[i]][1])
+		{
+			if(days[day[i]][0] == "")
+			{
+				hoursdetails.push( { "startDate": minDate , 
+						     "endDate": maxDate, 
+						     "taskName":day[i],
+						     "status":"NOINFO"})
+			}
+			else
+			{
+				hoursdetails.push( { "startDate": minDate ,
+					             "endDate": maxDate,
+						     "taskName":day[i],
+						     "status":"24HOURS"})
+			}	
+		}
+		else
+		{
+		       if(days[day[i]][0].substring(0,days[day[i]][0].indexOf(':'))> days[day[i]][1].substring(0, days[day[i]][1].indexOf(':')))
+			{	
+		 		var close = "Mon Dec 10 "+days[day[i]][1]+":00 EST 2012"
+			}
+			else
+			{	
+		 		var close = "Sun Dec 09 "+days[day[i]][1]+":00 EST 2012"
+			}
+		 	var open = "Sun Dec 09 "+days[day[i]][0]+":00 EST 2012"
+			hoursdetails.push( { "startDate": new Date(open) , "endDate": new Date(close), "taskName":day[i],"status":"RUNNING"},
+	 		   	   	   { "startDate": new Date(close) , "endDate": new Date(close), "taskName":day[i],"status":"KILLED"})
+		}		   
+		i = i +1
+	}
+	var temp_task = []
+	hoursdetails.forEach(function(d){
+						if((d.status!="NOINFO") && (d.status!="24HOURS")) 
+					 	{	
+							 temp_task.push(d.startDate); 
+					   		temp_task.push(d.endDate)
+					 	}
+					})
+	if(temp_task.length !=0)
+	{	
+		var minDate = d3.min(temp_task)
+		var maxDate = d3.max(temp_task)
+		hoursdetails.forEach(function(d){
+							if(d.status=="NOINFO") 
+							{ 
+								d.startDate = minDate; d.endDate=maxDate
+							}
+				  		 	else if (d.status=="24HOURS") 
+							{
+								d.startDate = minDate; 
+								d.endDate=maxDate 
+							}
+						})
+	}
+	var tasks = hoursdetails 
+	var taskNames = day;
+	
+	var taskStatus = {
+
+    				"RUNNING" : "bar-running",
+    				"KILLED" : "bar-killed",
+				"24HOURS" : "bar-24hours",
+				"NOINFO" : "bar-noinfo"
+			 };
+	
+	var selector = "#gantt"
+
+	tasks.sort(function(a, b) {
+    						return a.endDate - b.endDate;
+				});
+	//var maxDate = tasks[tasks.length - 1].endDate;
+	tasks.sort(function(a, b) {
+    					return a.startDate - b.startDate;
+				});
+	//var minDate = tasks[0].startDate;
+
+	tasks.forEach(function(d) {if(d.status == "24hours") {d.startDate=minDate; d.endDate = maxDate }})
+
+	
+	var height = 220
+	var width = 200
+	var format = "%H:%M %p";
+	var gantt = d3.gantt().selector("#gantt")
+              .height(height)
+              .width(width)
+              .taskTypes(taskNames)
+              .taskStatus(taskStatus)
+              .tickFormat(format)
+              .tickValues([]);
+	gantt(tasks);
+}
+
+var menukey = {'0':'Las Vegas','1':'Phoenix','2':'Pittsburgh', '3':'Charlotte'}
+update("American", "Las Vegas")
+d3.select('#foodtype').on('change', function() 
+				   {
+  					newVal = d3.select('input[name="foodtype"]:checked').node().value
+					newVal2 = eval(d3.select("#citymenu").property("value"));
+					update(newVal, menukey[newVal2])
+				   });
+d3.select("#citymenu").on('change', function() 
+				{
+					
+   		 			newVal2 = eval(d3.select(this).property('value'));
+  					newVal = d3.select('input[name="foodtype"]:checked').node().value
+					if((newVal2 == '0')) 
+					{
+						d3.select('#Japanese').style('display', 'inline')	
+						d3.select('#Seafood').style('display', 'inline')	
+						d3.select('#French').style('display', 'inline')	
+					}		
+					if((newVal2 == '1') || (newVal2 == '2')||(newVal2=='3'))
+					{
+						d3.select('#Japanese').style('display', 'none')	
+						d3.select('#Seafood').style('display', 'none')	
+						d3.select('#French').style('display', 'none')	
+					}		
+					/*
+					if(newVal2 == '2') 
+					{
+						d3.select('#Japanese').style('display', 'none')	
+						d3.select('#Seafood').style('display', 'none')	
+						d3.select('#French').style('display', 'none')	
+					}
+					*/		
+					document.getElementById(newVal).checked = false
+					document.getElementById('American-I').checked =true 
+					update('American', menukey[newVal2])
+
+				});
+
+</script>
+</body>
+</html>
+      
+

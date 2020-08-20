@@ -1,0 +1,511 @@
+#nav 
+{
+    line-height:1.5;
+    font-family:'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size:11px;
+    background-color:#FAFAFA;
+    border-radius: .22em;
+    width:280px;
+    height:600px;
+    float:left;
+    margin-top: 10px;    
+    margin-left: 5px;    
+    padding-left:20px;	 	 
+    padding-right:12px;	 	 
+}
+#review
+{
+    line-height:1.5;
+    font-family:'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size:12px;
+}
+#pic
+{
+    width:260px;
+    padding-bottom:10px;	 	 
+
+}
+img 
+{
+    max-width: 100%;
+    max-height: auto;
+}
+	
+#over_map 
+{
+    background: rgba(0, 0, 0, 0.6);
+    border-radius: .22em;
+    position: absolute; 
+    margin-top: 10px;    
+    left: 317px; 
+    padding-top:0px;	 	 
+    padding-left:10px;	 	 
+    width :600px; 
+}
+#label
+{
+    font-family:'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size:12px;
+    margin-left: 0px; 
+    font-weight: bold; 
+}
+#citymenu
+{
+    font-family:'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size:12px;
+    float : left; 
+    margin-top: 10px;  
+    margin-left: 0px; 
+    margin-right: 20px; 
+    margin-bottom: 10px;
+    border-radius: .22em;
+    border: 1px; 
+    border-color:white; 
+    padding-right: 5px;
+    padding-left: 2px;
+    background: rgba(0, 0, 0, 0);
+    color:white;
+    font-weight:bold;
+}
+
+select
+{
+        outline:1px;
+	border:1px;
+	border-color:black;
+}
+select option 
+{
+  -moz-appearance: none;
+  font-family:'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-size:12px;
+  background: rgba(0, 0, 0, 0.5);
+  border: none; 
+  color:white;
+}
+#foodtype
+{
+    overflow:hidden;
+    font-family:'Helvetica Neue', Helvetica, Arial, sans-serif;
+    color:white;
+    font-size:11px;
+    font-weight:bold;
+    margin-left: 5px; 
+    margin-bottom: 12px; 
+    margin-top: 10px;  
+    margin-right: 0px; 
+}
+#map 
+{
+    width:600px;
+    float:left;
+    height:580px;
+    margin-top: 10px;    
+    padding-top:20px;	 	 
+    padding-left:10px;	 	 
+}
+#details 
+{
+    border-radius: .22em;
+    font-family:'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size:11px;
+    line-height:30px;
+    background-color:#FAFAFA;
+    width:340px;
+    height:590px;
+    float:left;
+    margin-top: 10px;    
+    padding-top:10px;	 	 
+    padding-left:10px;	 	 
+}
+#tabeldetails,#more 
+{
+    font-family:'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size:11px;
+    line-height:15px;
+    padding-top:0px;	 	 
+    border-collapse: collapse;
+    vertical-align:middle;
+}
+
+#moredetails 
+{
+    font-family:'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size:10px;
+    line-height:15px;
+    border-collapse: collapse;
+    border-right: 2px solid #E8E8E8;
+    text-align:center;
+
+} 	 
+.tooltip .tooltiptext 
+{
+    visibility: hidden;
+    width:auto ;
+    background-color: rgba(0,0,0,0.8);
+    color: #fff;
+    text-align: center;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    padding-left: 5px;
+    padding-right: 10px;
+    border-radius: 6px;
+ 
+    /* Position the tooltip text - see examples below! */
+    position: absolute;
+    z-index: 1;
+}
+
+/* Show the tooltip text when you mouse over the tooltip container */
+.tooltip:hover .tooltiptext 
+{
+    visibility: visible;
+}
+
+#footer 
+{
+    border-radius: .22em;
+    font-size:11px;
+    line-height:5px;
+    font-family: 'Oswald', sans-serif;
+    background-color:#F2F2F2;
+    float:left;
+    width:1252px;
+    height:20px;
+    color:black;
+    clear:both;
+    padding-top:10px;	 	 
+    padding-right:20px;	 	 
+    padding-bottom:10px;	 	 
+    text-align:center;
+    margin-left: 5px;    
+    margin-right: 10px;    
+    vertical-align:middle;
+}
+ 
+/* the yelp stars formating adopted from http://codepen.io/yelp/pen/aLxbG by Yelp Devs*/
+tbody .star 
+{
+  padding: 20px;
+}
+.rating 
+{
+  margin: 10px 0;
+}
+
+.rating i 
+{
+  font-size: 12px;
+  display: inline-block;
+  width: 0;
+  height: 1.5em;
+  border-width: 0 0.75em;
+  border-style: solid;
+  border-color: #eee;
+  border-radius: .22em;
+  color: white;
+  background: #eee;
+  font-style: normal;
+  line-height: 1.6em;
+  text-indent: -0.5em;
+  text-shadow: 1px 0 1px #b3b3b3;
+}
+
+/** Colors */
+[data-rating^='1'] .star-1 
+{
+  border-color: #cc8b1f;
+  background: #cc8b1f;
+}
+
+[data-rating^='1.5'] .star-2 
+{
+  border-left-color: #cc8b1f;
+}
+
+[data-rating^='2'] .star-1 
+{
+  border-color: #dcb228;
+  background: #dcb228;
+}
+
+[data-rating^='2'] .star-2 
+{
+  border-color: #dcb228;
+  background: #dcb228;
+}
+
+[data-rating^='2.5'] .star-3 
+{
+  border-left-color: #dcb228;
+}
+
+[data-rating^='3'] .star-1 
+{
+  border-color: #f0991e;
+  background: #f0991e;
+}
+
+[data-rating^='3'] .star-2 
+{
+  border-color: #f0991e;
+  background: #f0991e;
+}
+
+[data-rating^='3'] .star-3 
+{
+  border-color: #f0991e;
+  background: #f0991e;
+}
+
+[data-rating^='3.5'] .star-4 
+{
+  border-left-color: #f0991e;
+}
+
+[data-rating^='4'] .star-1 
+{
+  border-color: #f26a2c;
+  background: #f26a2c;
+}
+
+[data-rating^='4'] .star-2 
+{
+  border-color: #f26a2c;
+  background: #f26a2c;
+}
+
+[data-rating^='4'] .star-3 
+{
+  border-color: #f26a2c;
+  background: #f26a2c;
+}
+
+[data-rating^='4'] .star-4 
+{
+  border-color: #f26a2c;
+  background: #f26a2c;
+}
+
+[data-rating^='4.5'] .star-5 
+{
+  border-left-color: #f26a2c;
+}
+
+[data-rating="5"] i 
+{
+  background: #dd050b;
+  border-color: #dd050b;
+}
+
+/** Print */
+@media print 
+{
+	.rating 
+	{
+    	-webkit-print-color-adjust: exact;
+  	}
+	.rating i 
+	{
+    	text-shadow: none;
+	}
+}
+.range 
+{
+  margin: 5px 0;
+  font-size:15px;
+  font-weight:bold ; 
+}
+
+.range i 
+{
+  display: inline-block;
+  width: 0;
+  height: 1.5em;
+  border-width: 0 0.75em;
+  border-style: solid;
+  border-color: White;
+  border-radius: .22em;
+  color: #D8D8D8 ;
+  background:white;
+  font-style: normal;
+  line-height: 1.5em;
+  text-indent: -0.28em;
+}
+
+/** Colors */
+[data-range^='1'] .dollar-1 
+{
+  color:#008a00;
+  border-color: white;  
+
+}
+
+
+[data-range^='2'] .dollar-1 
+{
+  color:#008a00;
+  border-color: white;  
+
+}
+
+[data-range^='2'] .dollar-2 
+{
+  color:#008a00;
+  border-color: white;  
+}
+
+
+[data-range^='3'] .dollar-1 
+{
+  color:#008a00;
+  border-color: white;  
+}
+
+[data-range^='3'] .dollar-2 
+{
+  color:#008a00;
+  border-color: white;  
+}
+
+[data-range^='3'] .dollar-3 
+{
+  color:#008a00;
+  border-color: white;  
+}
+
+
+[data-range^='4'] .dollar-1
+{
+  color:#008a00;
+  border-color: white;  
+}
+
+[data-range^='4'] .dollar-2
+{
+  color:#008a00;
+  border-color: white;  
+}
+
+[data-range^='4'] .dollar-3 
+{
+  color:#008a00;
+  border-color: white;  
+
+}
+
+[data-range^='4'] .dollar-4 
+{
+  border-color: white;  
+  color:#008a00;
+}
+
+
+/** Print */
+@media print 
+{
+  .rating 
+  {
+    -webkit-print-color-adjust: exact;
+  }
+  .rating i 
+  {
+    text-shadow: none;
+  }
+}
+
+
+
+#gantt, .chart 
+{
+	font-family: Arial, sans-serif;
+	font-size: 10px;
+	text-anchor:start;	
+}
+
+.xaxis path,.xaxis line 
+{
+        fill: none;
+	/*
+        stroke: #000;
+	*/
+        shape-rendering: crispEdges;
+	stroke-color:white;
+}
+.yaxis path,.yaxis line 
+{
+        fill: none;
+	stroke-dasharray: 7,5;
+	stroke-color:white;
+        shape-rendering: crispEdges;
+}
+.bar-running , .bar-killed, .bar-24hours,.bar-noinfo
+{
+	font-family: Arial, sans-serif;
+	font-size: 9px;
+	text-anchor:start;	
+    	font-weight: normal;
+        border-radius: .22em;
+}
+.yaxis text
+{
+    	    font-weight: bold;
+	    text-align: left;
+
+}
+
+.xaxis text
+{
+    font-weight: bold;
+}
+.xaxis .tick 
+{
+	  stroke-dasharray: 7,5;
+}
+
+
+.bar 
+{
+	fill: #33b5e5;
+}
+
+.bar-running ,.bar-24hours
+{
+	fill: #66CC66;
+
+}
+
+
+.bar-killed ,.bar-noinfo
+{
+	fill: white;
+}
+
+/*adopted from http://www.the-art-of-web.com/css/textoverimage/ */
+a.hovertext 
+{
+    position: relative;
+    text-decoration: none !important;
+    text-align: center;
+    width:260px;
+}
+a.hovertext:after 
+{
+    content: attr(title);
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width:260px;
+    background: rgba(0,0,0,0.8);
+    text-decoration: none !important;
+    color: #fff;
+    opacity: 0;
+    -webkit-transition: 0.5s;
+    -moz-transition: 0.5s;
+    -o-transition: 0.5s;
+    -ms-transition: 0.5s;
+}
+a.hovertext:hover:after, a.hovertext:focus:after 
+{
+    opacity: 1.0;
+}
