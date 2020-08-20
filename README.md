@@ -9,7 +9,7 @@ This project presents a novel method for discovering influential reviewers on on
 
 (1) Final write-up (team03)
 
-#### SW folder contains:
+#### SW folder contains
 
 (1) Python3 script for converting dataset in JSON to CSV (convert_csv.py)
 
@@ -21,7 +21,7 @@ This project presents a novel method for discovering influential reviewers on on
 
 (5) AlphaSelects folder - GUI related files
 
-#### Installation and Setup: 
+#### Installation and Setup 
 
 (1) Download a dataset from Yelp Dataset Challenge at https://www.yelp.com/dataset_challenge/dataset/
 
