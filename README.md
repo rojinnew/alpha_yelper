@@ -43,7 +43,7 @@ This project presents a novel method for discovering influential reviewers on on
 
 (9) Run python script for feature engineering and graph analyses (python analyze.py) - this step takes about 15 minutes on our platform - you may need to install a few python packages
 
-#### To run a demo for GUI:
+#### To run a demo for GUI
 
 (10) Run python script to generate data for GUI (python gui.py)
 
