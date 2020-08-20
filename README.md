@@ -1,7 +1,7 @@
 ### Summary
- 
+<p align="center"> 
 This project presents a novel method for discovering influential reviewers on online review websites. The proposed method relies on temporal correlations of reviews from a cluster of social network groups. These correlations are represented as graphs and the analyses are carried out through queries on graph database. For evaluation, the proposed method was applied to the dataset from Yelp Dataset Challenge, which includes 500K+ reviewers (a.k.a. yelpers), 75K+ businesses, and 2M+ reviews, yielding 12K+ trendsetting reviewers with drastically different levels of influences on Yelp. The PageRank algorithm then ranks these trendsetters with top ten ranks chosen as alphas. The evaluation results from assessing the accuracy of business rating prediction by these alphas are shown to be superior to that of the elite yelpers. The graphical user interface for utilizing the alpha’s capabilities also demonstrated that rating and review from alpha yelpers can be used to reduce the length of time for locating good businesses.
-
+<p align="center">
 ![Image](https://github.com/rojinnew/alpha_yelper/blob/master/image.png)
 
 #### DOC folder contains: 
@@ -42,7 +42,7 @@ This project presents a novel method for discovering influential reviewers on on
 
 (9) Run python script for feature engineering and graph analyses (python analyze.py) - this step takes about 15 minutes on our platform - you may need to install a few python packages
 
-To run a demo for GUI:
+#### To run a demo for GUI:
 
 (10) Run python script to generate data for GUI (python gui.py)
 
